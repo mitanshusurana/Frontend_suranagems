@@ -1,0 +1,59 @@
+<div class="min-h-screen bg-gray-50 py-8">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-bold">Gemmological Reports</h1>
+      <button mat-raised-button color="primary" [routerLink]="['/reports/new']">
+        <mat-icon>add</mat-icon>
+        New Report
+      </button>
+    </div>
+
+    <div *ngIf="loading" class="flex justify-center py-8">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+
+    <div *ngIf="error" class="text-center py-8">
+      <p class="text-red-600">Error loading reports. Please try again.</p>
+      <button mat-button color="primary" (click)="loadReports()">Retry</button>
+    </div>
+
+    <div *ngIf="!loading && !error" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <mat-card *ngFor="let report of reports" class="hover:shadow-lg transition-shadow">
+        <mat-card-header>
+          <mat-card-title>Report #{{ report.reportNumber }}</mat-card-title>
+          <mat-card-subtitle>{{ report.date | date }}</mat-card-subtitle>
+        </mat-card-header>
+
+        <img *ngIf="report.images?.length" [src]="report.images[0]" alt="Gem" class="w-full h-48 object-cover">
+
+        <mat-card-content class="p-4">
+          <p><strong>Species:</strong> {{ report.species }}</p>
+          <p><strong>Variety:</strong> {{ report.variety }}</p>
+          <p><strong>Weight:</strong> {{ report.weight }} ct</p>
+        </mat-card-content>
+
+        <mat-card-actions class="flex justify-end p-4">
+          <button mat-button color="primary" [routerLink]="['/reports', report.id]">
+            <mat-icon>visibility</mat-icon>
+            View
+          </button>
+          <button mat-button color="accent" [routerLink]="['/reports', report.id, 'edit']">
+            <mat-icon>edit</mat-icon>
+            Edit
+          </button>
+          <button mat-button color="warn" (click)="deleteReport(report.id!)">
+            <mat-icon>delete</mat-icon>
+            Delete
+          </button>
+        </mat-card-actions>
+      </mat-card>
+    </div>
+
+    <div *ngIf="!loading && !error && reports.length === 0" class="text-center py-8">
+      <p class="text-gray-500">No reports found.</p>
+      <button mat-raised-button color="primary" [routerLink]="['/reports/new']" class="mt-4">
+        Create First Report
+      </button>
+    </div>
+  </div>
+</div>

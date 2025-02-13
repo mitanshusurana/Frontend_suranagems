@@ -1,0 +1,148 @@
+<div class="min-h-screen bg-gray-50 py-8">
+  <div class="max-w-4xl mx-auto px-4">
+    <mat-card>
+      <mat-card-header class="justify-center mb-6">
+        <mat-card-title class="text-2xl font-bold">GEMMOLOGICAL REPORT</mat-card-title>
+      </mat-card-header>
+
+      <mat-card-content>
+        <!-- Image Input -->
+        <input 
+          #imageInput 
+          type="file" 
+          accept="image/jpeg, image/png, image/webp" 
+          multiple 
+          class="hidden"
+          (change)="onImageSelected($event)">
+
+        <!-- Image Gallery -->
+        <div class="mb-6">
+          <swiper-container 
+            *ngIf="images.length > 0"
+            [slidesPerView]="1"
+            [navigation]="true"
+            [pagination]="true">
+            <swiper-slide *ngFor="let image of images; let i = index" class="relative">
+              <img [src]="image" alt="Gem image" class="w-full h-full object-contain">
+              <button
+                (click)="removeImage(i)"
+                class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-2 hover:bg-red-600 transition-colors"
+                mat-icon-button>
+                <mat-icon>close</mat-icon>
+              </button>
+            </swiper-slide>
+          </swiper-container>
+
+          <!-- Add Image Button -->
+          <div class="flex justify-center mt-4">
+            <button 
+              mat-raised-button 
+              color="primary" 
+              (click)="onImageCapture()"
+              class="flex items-center gap-2">
+              <mat-icon>add_photo_alternate</mat-icon>
+              Add Gem Image
+            </button>
+          </div>
+        </div>
+
+        <!-- Image Cropping Modal -->
+        <div *ngIf="isImageModalOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div class="bg-white p-4 rounded-lg max-w-2xl w-full">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-lg font-semibold">Crop Image</h3>
+              <button 
+                mat-icon-button 
+                (click)="closeImageModal()"
+                class="text-gray-500 hover:text-gray-700">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+            <div class="relative h-96">
+              <img #imagePreview [src]="currentImage" class="max-w-full">
+            </div>
+            <div class="flex justify-end gap-2 mt-4">
+              <button mat-button (click)="closeImageModal()">Cancel</button>
+              <button mat-raised-button color="primary" (click)="saveCroppedImage()">Save</button>
+            </div>
+          </div>
+        </div>
+
+        <form [formGroup]="reportForm" (ngSubmit)="onSubmit()" class="grid grid-cols-2 gap-4">
+          <mat-form-field appearance="outline">
+            <mat-label>Report Number</mat-label>
+            <input matInput formControlName="reportNumber">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Colour</mat-label>
+            <input matInput formControlName="colour">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Date</mat-label>
+            <input matInput formControlName="date" type="date">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Species</mat-label>
+            <input matInput formControlName="species">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Item</mat-label>
+            <input matInput formControlName="item">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Variety</mat-label>
+            <input matInput formControlName="variety">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Weight</mat-label>
+            <input matInput formControlName="weight">
+            <span matSuffix>ct</span>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Origin</mat-label>
+            <input matInput formControlName="origin">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Shape</mat-label>
+            <input matInput formControlName="shape">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Condition</mat-label>
+            <input matInput formControlName="condition">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Cut</mat-label>
+            <input matInput formControlName="cut">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Measurements</mat-label>
+            <input matInput formControlName="measurements">
+            <span matSuffix>mm</span>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Transparency</mat-label>
+            <input matInput formControlName="transparency">
+          </mat-form-field>
+
+          <div class="col-span-2 flex justify-end mt-4">
+            <button mat-raised-button color="primary" type="submit" [disabled]="!reportForm.valid">
+              Generate Report
+            </button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

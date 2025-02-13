@@ -1,0 +1,67 @@
+<div class="min-h-screen bg-gray-50 py-8">
+  <div class="max-w-4xl mx-auto px-4">
+    <div *ngIf="loading" class="flex justify-center py-8">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+
+    <div *ngIf="error" class="text-center py-8">
+      <p class="text-red-600">Error loading report. Please try again.</p>
+      <button mat-button color="primary" (click)="loadReport(report?.id!)">Retry</button>
+    </div>
+
+    <mat-card *ngIf="!loading && !error && report">
+      <mat-card-header class="mb-6">
+        <mat-card-title class="text-2xl">Report #{{ report.reportNumber }}</mat-card-title>
+        <mat-card-subtitle>{{ report.date | date }}</mat-card-subtitle>
+      </mat-card-header>
+
+      <swiper-container *ngIf="report.images?.length">
+        <swiper-slide *ngFor="let image of report.images">
+          <img [src]="image" alt="Gem image" class="w-full h-64 object-contain">
+        </swiper-slide>
+      </swiper-container>
+
+      <mat-card-content class="p-6">
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <h3 class="font-semibold mb-2">Basic Information</h3>
+            <p><strong>Species:</strong> {{ report.species }}</p>
+            <p><strong>Variety:</strong> {{ report.variety }}</p>
+            <p><strong>Item:</strong> {{ report.item }}</p>
+            <p><strong>Colour:</strong> {{ report.colour }}</p>
+          </div>
+
+          <div>
+            <h3 class="font-semibold mb-2">Physical Properties</h3>
+            <p><strong>Weight:</strong> {{ report.weight }} ct</p>
+            <p><strong>Measurements:</strong> {{ report.measurements }} mm</p>
+            <p><strong>Shape:</strong> {{ report.shape }}</p>
+            <p><strong>Cut:</strong> {{ report.cut }}</p>
+          </div>
+
+          <div class="col-span-2">
+            <h3 class="font-semibold mb-2">Additional Information</h3>
+            <p><strong>Origin:</strong> {{ report.origin }}</p>
+            <p><strong>Condition:</strong> {{ report.condition }}</p>
+            <p><strong>Transparency:</strong> {{ report.transparency }}</p>
+          </div>
+        </div>
+      </mat-card-content>
+
+      <mat-card-actions class="flex justify-end p-4">
+        <button mat-button color="primary" [routerLink]="['/reports']">
+          <mat-icon>arrow_back</mat-icon>
+          Back to List
+        </button>
+        <button mat-raised-button color="accent" [routerLink]="['/reports', report.id, 'edit']">
+          <mat-icon>edit</mat-icon>
+          Edit Report
+        </button>
+        <button mat-button color="warn" (click)="deleteReport()">
+          <mat-icon>delete</mat-icon>
+          Delete Report
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+</div>

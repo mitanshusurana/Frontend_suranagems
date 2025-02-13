@@ -7,7 +7,7 @@ import { GemReport } from '../models/gem-report.model';
   providedIn: 'root'
 })
 export class GemReportService {
-  private apiUrl = 'http://localhost:8080/api/gem-reports'; // Placeholder URL
+  private apiUrl = 'https://91bccd09-3145-4e0e-9766-7ae6bcd72ce0.mock.pstmn.io/api/gem-reports'; // Placeholder URL
 
   constructor(private http: HttpClient) {}
 

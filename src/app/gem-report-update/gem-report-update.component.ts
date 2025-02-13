@@ -8,6 +8,7 @@ import { GemReport } from '../models/gem-report.model';
 @Component({
   selector: 'app-gem-report-update',
   templateUrl: './gem-report-update.component.html',
+  styleUrls: ['./gem-report-update.component.css']
 })
 export class GemReportUpdateComponent implements OnInit {
   reportForm!: FormGroup;

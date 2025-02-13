@@ -21,13 +21,13 @@
             *ngIf="images.length > 0"
             [slidesPerView]="1"
             [navigation]="true"
-            [pagination]="true">
+            [pagination]="true"
+            class="relative">
             <swiper-slide *ngFor="let image of images; let i = index" class="relative">
-              <img [src]="image" alt="Gem image" class="w-full h-full object-contain">
+              <img [src]="image" alt="Gem image" class="w-full h-64 object-contain">
               <button
                 (click)="removeImage(i)"
-                class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-2 hover:bg-red-600 transition-colors"
-                mat-icon-button>
+                class="absolute top-4 right-4 bg-red-600 hover:bg-red-700 text-white rounded-full w-10 h-10 flex items-center justify-center shadow-xl z-[100] transition-all duration-200 transform hover:scale-105">
                 <mat-icon>close</mat-icon>
               </button>
             </swiper-slide>
@@ -136,7 +136,8 @@
             <input matInput formControlName="transparency">
           </mat-form-field>
 
-          <div class="col-span-2 flex justify-end mt-4">
+          <div class="col-span-2 flex justify-end mt-4 gap-4">
+            <button mat-button [routerLink]="['/reports']">Cancel</button>
             <button mat-raised-button color="primary" type="submit" [disabled]="!reportForm.valid">
               Generate Report
             </button>

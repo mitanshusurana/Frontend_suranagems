@@ -1,11 +1,8 @@
-<div class="min-h-screen bg-gray-50 py-8">
-  <div class="max-w-6xl mx-auto px-4">
-    <div class="flex justify-between items-center mb-6">
-      <h1 class="text-2xl font-bold">Gemmological Reports</h1>
-      <button mat-raised-button color="primary" [routerLink]="['/reports/new']">
-        <mat-icon>add</mat-icon>
-        New Report
-      </button>
+<div class="min-h-screen bg-gray-50 relative">
+  <div class="max-w-6xl mx-auto px-4 py-8">
+    <div class="text-center mb-12">
+      <h1 class="text-3xl font-bold text-gray-900 mb-2">Gemmological Reports</h1>
+      <p class="text-gray-600">Manage and view your gem reports in one place</p>
     </div>
 
     <div *ngIf="loading" class="flex justify-center py-8">
@@ -18,21 +15,29 @@
     </div>
 
     <div *ngIf="!loading && !error" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <mat-card *ngFor="let report of reports" class="hover:shadow-lg transition-shadow">
-        <mat-card-header>
-          <mat-card-title>Report #{{ report.reportNumber }}</mat-card-title>
-          <mat-card-subtitle>{{ report.date | date }}</mat-card-subtitle>
-        </mat-card-header>
+      <mat-card *ngFor="let report of reports" class="hover:shadow-lg transition-shadow duration-300">
+        <img *ngIf="report.images?.length" [src]="report.images[0]" alt="Gem" 
+             class="w-full h-48 object-cover rounded-t">
+        <div *ngIf="!report.images?.length" class="w-full h-48 bg-gray-200 flex items-center justify-center">
+          <mat-icon class="text-gray-400" style="transform: scale(2)">diamond</mat-icon>
+        </div>
 
-        <img *ngIf="report.images?.length" [src]="report.images[0]" alt="Gem" class="w-full h-48 object-cover">
+        <mat-card-content class="p-6">
+          <div class="flex justify-between items-start mb-4">
+            <div>
+              <h2 class="text-xl font-semibold text-gray-900">Report #{{ report.reportNumber }}</h2>
+              <p class="text-gray-500">{{ report.date | date }}</p>
+            </div>
+          </div>
 
-        <mat-card-content class="p-4">
-          <p><strong>Species:</strong> {{ report.species }}</p>
-          <p><strong>Variety:</strong> {{ report.variety }}</p>
-          <p><strong>Weight:</strong> {{ report.weight }} ct</p>
+          <div class="space-y-2">
+            <p><span class="font-medium">Species:</span> {{ report.species }}</p>
+            <p><span class="font-medium">Variety:</span> {{ report.variety }}</p>
+            <p><span class="font-medium">Weight:</span> {{ report.weight }} ct</p>
+          </div>
         </mat-card-content>
 
-        <mat-card-actions class="flex justify-end p-4">
+        <mat-card-actions class="flex justify-end p-4 border-t">
           <button mat-button color="primary" [routerLink]="['/reports', report.id]">
             <mat-icon>visibility</mat-icon>
             View
@@ -49,11 +54,19 @@
       </mat-card>
     </div>
 
-    <div *ngIf="!loading && !error && reports.length === 0" class="text-center py-8">
-      <p class="text-gray-500">No reports found.</p>
-      <button mat-raised-button color="primary" [routerLink]="['/reports/new']" class="mt-4">
-        Create First Report
-      </button>
+    <div *ngIf="!loading && !error && reports.length === 0" class="text-center py-16">
+      <mat-icon class="text-gray-400 mb-4" style="transform: scale(3)">diamond</mat-icon>
+      <h2 class="text-xl font-semibold text-gray-900 mt-4">No Reports Yet</h2>
+      <p class="text-gray-600 mb-6">Create your first gemmological report to get started</p>
     </div>
   </div>
+
+  <!-- Floating Action Button for adding new reports -->
+  <button 
+    mat-fab 
+    color="primary" 
+    [routerLink]="['/reports/new']"
+    class="fixed bottom-8 right-8 z-[1000] shadow-2xl hover:shadow-2xl transition-all duration-200 transform hover:scale-105">
+    <mat-icon>add</mat-icon>
+  </button>
 </div>

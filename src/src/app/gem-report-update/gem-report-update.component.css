@@ -1,9 +1,0 @@
-@media (min-width: 1024px) {
-    .swiper-slide button {
-      top: 6%;  /* Adjust button position */
-      right: 6%; /* Adjust button position */
-      width: 36px;  /* Adjust button size */
-      height: 36px; /* Adjust button size */
-    }
-  }
-  

@@ -7,7 +7,7 @@ import { GemReport } from '../models/gem-report.model';
   providedIn: 'root'
 })
 export class GemReportService {
-  private apiUrl = 'http://localhost:8080/api/gem-reports'; // Placeholder URL
+  private apiUrl = 'https://backend-suranagems.onrender.com/api/gem-reports'; // Placeholder URL
 
   constructor(private http: HttpClient) {}
 

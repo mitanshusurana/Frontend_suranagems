@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "npx ng serve",
-    "build": "npx ng build",
-    "test": "npx ng test",
-    "lint": "npx ng lint"
+    "dev": "ng serve",
+    "build": "ng build",
+    "test": "ng test",
+    "lint": "ng lint"
   },
   "dependencies": {
     "@angular/animations": "~18.0.0",

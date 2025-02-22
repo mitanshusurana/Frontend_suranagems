@@ -1,18 +1,129 @@
 <div class="min-h-screen bg-gray-50 relative">
   <div class="max-w-6xl mx-auto px-4 py-8">
-    <div class="text-center mb-12">
+    <div class="text-center mb-8">
       <h1 class="text-3xl font-bold text-gray-900 mb-2">Gemmological Reports</h1>
       <p class="text-gray-600">Manage and view your gem reports in one place</p>
     </div>
 
-    <!-- Centered Rectangular Button for Adding New Report -->
-    <div class="flex justify-center items-center py-8">
+    <!-- Search and Filter Section -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+      <div class="flex flex-wrap gap-4 items-center">
+        <!-- Search Bar -->
+        <div class="flex-1 min-w-[300px]">
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Search Reports</mat-label>
+            <input matInput [(ngModel)]="searchQuery" (ngModelChange)="applyFilters()" placeholder="Search by report number, species, variety...">
+            <button mat-icon-button matSuffix (click)="openQRScanner()">
+              <mat-icon>qr_code_scanner</mat-icon>
+            </button>
+          </mat-form-field>
+        </div>
+
+        <!-- Filter Buttons -->
+        <button mat-button [matMenuTriggerFor]="filterMenu" class="flex items-center gap-2">
+          <mat-icon>filter_list</mat-icon>
+          Filters
+        </button>
+        
+        <!-- Clear Filters -->
+        <button mat-button color="warn" *ngIf="hasActiveFilters()" (click)="clearFilters()">
+          <mat-icon>clear</mat-icon>
+          Clear Filters
+        </button>
+      </div>
+
+      <!-- Active Filters Display -->
+      <div *ngIf="hasActiveFilters()" class="flex flex-wrap gap-2 mt-4">
+        <mat-chip-list>
+          <mat-chip *ngFor="let filter of activeFilters" [removable]="true" (removed)="removeFilter(filter)">
+            {{filter.field}}: {{filter.value}}
+            <mat-icon matChipRemove>cancel</mat-icon>
+          </mat-chip>
+        </mat-chip-list>
+      </div>
+    </div>
+
+    <!-- Filter Menu -->
+    <mat-menu #filterMenu="matMenu" class="p-4">
+      <div class="p-4" (click)="$event.stopPropagation()">
+        <h3 class="text-lg font-semibold mb-4">Filter Reports</h3>
+        
+        <!-- Species Filter -->
+        <mat-form-field appearance="outline" class="w-full mb-4">
+          <mat-label>Species</mat-label>
+          <mat-select [(ngModel)]="filters.species" (selectionChange)="applyFilters()">
+            <mat-option>Any</mat-option>
+            <mat-option *ngFor="let species of uniqueValues.species" [value]="species">
+              {{species}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <!-- Variety Filter -->
+        <mat-form-field appearance="outline" class="w-full mb-4">
+          <mat-label>Variety</mat-label>
+          <mat-select [(ngModel)]="filters.variety" (selectionChange)="applyFilters()">
+            <mat-option>Any</mat-option>
+            <mat-option *ngFor="let variety of uniqueValues.variety" [value]="variety">
+              {{variety}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <!-- Origin Filter -->
+        <mat-form-field appearance="outline" class="w-full mb-4">
+          <mat-label>Origin</mat-label>
+          <mat-select [(ngModel)]="filters.origin" (selectionChange)="applyFilters()">
+            <mat-option>Any</mat-option>
+            <mat-option *ngFor="let origin of uniqueValues.origin" [value]="origin">
+              {{origin}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <!-- Date Range Filter -->
+        <div class="grid grid-cols-2 gap-4">
+          <mat-form-field appearance="outline">
+            <mat-label>From Date</mat-label>
+            <input matInput [matDatepicker]="fromPicker" [(ngModel)]="filters.dateFrom" (dateChange)="applyFilters()">
+            <mat-datepicker-toggle matSuffix [for]="fromPicker"></mat-datepicker-toggle>
+            <mat-datepicker #fromPicker></mat-datepicker>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>To Date</mat-label>
+            <input matInput [matDatepicker]="toPicker" [(ngModel)]="filters.dateTo" (dateChange)="applyFilters()">
+            <mat-datepicker-toggle matSuffix [for]="toPicker"></mat-datepicker-toggle>
+            <mat-datepicker #toPicker></mat-datepicker>
+          </mat-form-field>
+        </div>
+      </div>
+    </mat-menu>
+
+    <!-- QR Scanner Dialog -->
+    <div *ngIf="showScanner" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white p-4 rounded-lg max-w-lg w-full">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-semibold">Scan QR Code</h3>
+          <button mat-icon-button (click)="closeQRScanner()">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+        <div class="relative aspect-square">
+          <video #videoElement class="w-full h-full"></video>
+        </div>
+      </div>
+    </div>
+
+    <!-- Improved Add New Report Button -->
+    <div class="flex justify-center items-center mb-8">
       <button 
-        mat-flat-button
+        mat-raised-button
         color="primary" 
         [routerLink]="['/reports/new']"
-        class="w-40 h-12 rounded-lg text-lg shadow-2xl hover:shadow-2xl transition-all duration-200 transform hover:scale-105">
-        <mat-icon>add</mat-icon> Add New Report
+        class="px-6 py-3 rounded-lg text-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-2">
+        <mat-icon>add</mat-icon>
+        <span>New Report</span>
       </button>
     </div>
 
@@ -26,11 +137,14 @@
     </div>
 
     <div *ngIf="!loading && !error" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <mat-card *ngFor="let report of reports" class="hover:shadow-lg transition-shadow duration-300">
-        <img *ngIf="report.images?.length" [src]="report.images[0]" alt="Gem" 
-             class="w-full h-48 object-cover rounded-t">
-        <div *ngIf="!report.images?.length" class="w-full h-48 bg-gray-200 flex items-center justify-center">
-          <mat-icon class="text-gray-400" style="transform: scale(2)">diamond</mat-icon>
+      <mat-card *ngFor="let report of filteredReports" class="hover:shadow-lg transition-shadow duration-300">
+        <!-- Fixed image dimensions to match other pages -->
+        <div class="relative w-full h-[800px] overflow-hidden">
+          <img *ngIf="report.images?.length" [src]="report.images[0]" alt="Gem" 
+               class="w-full h-full object-contain">
+          <div *ngIf="!report.images?.length" class="w-full h-full bg-gray-200 flex items-center justify-center">
+            <mat-icon class="text-gray-400" style="transform: scale(2)">diamond</mat-icon>
+          </div>
         </div>
 
         <mat-card-content class="p-6">
@@ -48,7 +162,7 @@
           </div>
         </mat-card-content>
 
-        <mat-card-actions class="flex justify-end p-4 border-t">
+        <mat-card-actions class="flex justify-end p-4 border-t gap-2">
           <button mat-button color="primary" [routerLink]="['/reports', report.id]">
             <mat-icon>visibility</mat-icon>
             View
@@ -65,10 +179,20 @@
       </mat-card>
     </div>
 
-    <div *ngIf="!loading && !error && reports.length === 0" class="text-center py-16">
+    <div *ngIf="!loading && !error && filteredReports.length === 0" class="text-center py-16">
       <mat-icon class="text-gray-400 mb-4" style="transform: scale(3)">diamond</mat-icon>
-      <h2 class="text-xl font-semibold text-gray-900 mt-4">No Reports Yet</h2>
-      <p class="text-gray-600 mb-6">Create your first gemmological report to get started</p>
+      <h2 class="text-xl font-semibold text-gray-900 mt-4">No Reports Found</h2>
+      <p class="text-gray-600 mb-6">
+        {{ reports.length === 0 ? 'Create your first gemmological report to get started' : 'No reports match your search criteria' }}
+      </p>
+      <button 
+        mat-raised-button
+        color="primary" 
+        [routerLink]="['/reports/new']"
+        class="px-6 py-3 rounded-lg text-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-2 mx-auto">
+        <mat-icon>add</mat-icon>
+        <span>{{ reports.length === 0 ? 'Create First Report' : 'Create New Report' }}</span>
+      </button>
     </div>
   </div>
 </div>

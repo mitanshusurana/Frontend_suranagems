@@ -186,7 +186,7 @@ export class GemReportListComponent implements OnInit, OnDestroy {
   async openQRScanner() {
     try {
       this.showScanner = true;
-      const videoInputDevices = await this.codeReader.listVideoInputDevices();
+      const videoInputDevices = await BrowserQRCodeReader.listVideoInputDevices();
       const selectedDeviceId = videoInputDevices[0].deviceId;
       
       const previewStream = await navigator.mediaDevices.getUserMedia({
@@ -204,11 +204,6 @@ export class GemReportListComponent implements OnInit, OnDestroy {
             this.closeQRScanner();
             this.router.navigate(['/reports', reportId]);
           }
-        },
-        (error) => {
-          if (error) {
-            console.error('QR scanning error:', error);
-          }
         }
       );
     } catch (error) {
@@ -225,7 +220,7 @@ export class GemReportListComponent implements OnInit, OnDestroy {
         const stream = this.videoElement.nativeElement.srcObject as MediaStream;
         stream.getTracks().forEach(track => track.stop());
       }
-      this.codeReader.reset();
+      // this.codeReader.reset();
     }
   }
 

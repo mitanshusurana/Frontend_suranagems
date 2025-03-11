@@ -187,8 +187,8 @@ export class GemReportListComponent implements OnInit, OnDestroy {
     try {
       this.showScanner = true;
       const videoInputDevices = await BrowserQRCodeReader.listVideoInputDevices();
-alert('list: ${JSON.stringify(videoInputDevices,null,2)}');
-      videoInputDevices.forEach(devices => {alert('device : ${devices.label}');});
+alert(`list: ${JSON.stringify(videoInputDevices,null,2)}`);
+      videoInputDevices.forEach(devices => {alert(`device : ${devices.label}`);});
 
 const selectedDeviceId = videoInputDevices.length > 1 ? videoInputDevices[1].deviceId : videoInputDevices[0].deviceId ;
       

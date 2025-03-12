@@ -139,7 +139,7 @@
     <div *ngIf="!loading && !error" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <mat-card *ngFor="let report of filteredReports" class="hover:shadow-lg transition-shadow duration-300">
         <!-- Fixed image dimensions to match other pages -->
-        <div class="relative w-full h-[800px] overflow-hidden">
+        <div class="relative w-full h-64 object-contain overflow-hidden">
           <img *ngIf="report.images?.length" [src]="report.images[0]" alt="Gem" 
                class="w-full h-full object-contain">
           <div *ngIf="!report.images?.length" class="w-full h-full bg-gray-200 flex items-center justify-center">

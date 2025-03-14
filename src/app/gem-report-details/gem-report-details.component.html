@@ -11,7 +11,7 @@
 
     <mat-card *ngIf="!loading && !error && report">
       <mat-card-header class="mb-6">
-        <mat-card-title class="text-2xl">Report #{{ report.reportNumber }}</mat-card-title>
+        <mat-card-title class="text-2xl">Report #{{ reporeport.id }}</mat-card-title>
         <mat-card-subtitle>{{ report.date | date }}</mat-card-subtitle>
       </mat-card-header>
 
@@ -22,7 +22,7 @@
         
           </swiper-slide>
         </swiper-container>
-      </div>
+      </div><report class="report i"></report>
 
 
       <mat-card-content class="p-6">

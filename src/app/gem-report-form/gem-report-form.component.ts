@@ -30,7 +30,7 @@ export class GemReportFormComponent implements OnInit {
 
   ngOnInit() {
     this.reportForm = this.fb.group({
-      reportNumber: ['24073175', [Validators.required]],
+      id: ['24073175', [Validators.required]],
       date: ['2024-07-25', [Validators.required]],
       colour: ['pinkish-purple', [Validators.required]],
       species: ['Natural corundum', [Validators.required]],

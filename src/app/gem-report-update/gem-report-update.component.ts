@@ -37,7 +37,7 @@ export class GemReportUpdateComponent implements OnInit {
 
   private initForm() {
     this.reportForm = this.fb.group({
-      reportNumber: ['', [Validators.required]],
+      id: ['', [Validators.required]],
       date: ['', [Validators.required]],
       colour: ['', [Validators.required]],
       species: ['', [Validators.required]],

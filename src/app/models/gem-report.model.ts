@@ -1,6 +1,5 @@
 export interface GemReport {
-  id?: string;
-  reportNumber: string;
+  id: string;
   date: string;
   colour: string;
   species: string;

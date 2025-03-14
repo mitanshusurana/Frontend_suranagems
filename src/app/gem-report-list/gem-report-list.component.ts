@@ -186,8 +186,7 @@ export class GemReportListComponent implements OnInit, OnDestroy {
   async openQRScanner(event : Event) {
     event.preventDefault();
     try {
-const inputElement = event.target.closest('mat-form-field').querySelector('input');
-if (inputElement) {inputElement.blur(); }
+const target = event.target as HTMLElement; const inputElement = target.closest('mat-form-field')?.querySelector('input'); if (inputElement) { inputElement.blur();}
       this.showScanner = true;
       const videoInputDevices = await BrowserQRCodeReader.listVideoInputDevices();
 

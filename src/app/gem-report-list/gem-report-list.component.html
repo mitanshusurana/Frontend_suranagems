@@ -13,7 +13,7 @@
           <mat-form-field appearance="outline" class="w-full">
             <mat-label>Search Reports</mat-label>
             <input matInput [(ngModel)]="searchQuery" (ngModelChange)="applyFilters()" placeholder="Search by report number, species, variety...">
-            <button mat-icon-button matSuffix (click)="openQRScanner()">
+            <button mat-icon-button matSuffix (click)="openQRScanner($event)">
               <mat-icon>qr_code_scanner</mat-icon>
             </button>
           </mat-form-field>

@@ -20,7 +20,7 @@ export class GemReportService {
   }
 
   updateReport(id: string, report: GemReport): Observable<GemReport> {
-    return this.http.put<GemReport>(`${this.apiUrl}/${id}`, report);
+    return this.http.put<GemReport>(`${this.apiUrl}`, report);
   }
 
   deleteReport(id: string): Observable<void> {

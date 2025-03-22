@@ -67,10 +67,28 @@
           </div>
         </div>
 
+        <!-- QR Scanner Modal -->
+        <div *ngIf="showQRScanner" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div class="bg-white p-4 rounded-lg max-w-lg w-full">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-lg font-semibold">Scan QR Code</h3>
+              <button mat-icon-button (click)="closeQRScanner()">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+            <div class="relative aspect-square">
+              <video #videoElement class="w-full h-full"></video>
+            </div>
+          </div>
+        </div>
+
         <form [formGroup]="reportForm" (ngSubmit)="onSubmit()" class="grid grid-cols-2 gap-4">
           <mat-form-field appearance="outline">
             <mat-label>Report Number</mat-label>
             <input matInput formControlName="id">
+            <button matSuffix mat-icon-button (click)="openQRScanner($event)">
+              <mat-icon>qr_code_scanner</mat-icon>
+            </button>
           </mat-form-field>
 
           <mat-form-field appearance="outline">

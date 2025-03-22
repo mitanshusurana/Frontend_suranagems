@@ -1,18 +1,20 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import Cropper from 'cropperjs';
 import { GemReportService } from '../services/gem-report.service';
 import { GemReport } from '../models/gem-report.model';
+import { BrowserQRCodeReader } from '@zxing/browser';
 
 @Component({
   selector: 'app-gem-report-form',
   templateUrl: './gem-report-form.component.html',
   styleUrls: ['./gem-report-form.component.css']
 })
-export class GemReportFormComponent implements OnInit {
+export class GemReportFormComponent implements OnInit, OnDestroy {
   @ViewChild('imageInput') imageInput!: ElementRef;
   @ViewChild('imagePreview') imagePreview!: ElementRef;
+  @ViewChild('videoElement') videoElement!: ElementRef;
 
   reportForm!: FormGroup;
   images: string[] = [];
@@ -21,12 +23,16 @@ export class GemReportFormComponent implements OnInit {
   currentImage: string | null = null;
   imageQueue: File[] = [];
   isSubmitting = false;
+  showQRScanner = false;
+  codeReader: BrowserQRCodeReader;
 
   constructor(
     private fb: FormBuilder,
     private gemReportService: GemReportService,
     private snackBar: MatSnackBar
-  ) {}
+  ) {
+    this.codeReader = new BrowserQRCodeReader();
+  }
 
   ngOnInit() {
     this.reportForm = this.fb.group({
@@ -44,6 +50,10 @@ export class GemReportFormComponent implements OnInit {
       measurements: ['17.96 x 13.40 x 7.12', [Validators.required]],
       transparency: ['translucent', [Validators.required]]
     });
+  }
+
+  ngOnDestroy() {
+    this.closeQRScanner();
   }
 
   onImageCapture() {
@@ -150,6 +160,54 @@ export class GemReportFormComponent implements OnInit {
     if (this.cropper) {
       this.cropper.destroy();
       this.cropper = null;
+    }
+  }
+
+  async openQRScanner(event: Event) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    // Blur any active input to hide virtual keyboard
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+    
+    try {
+      this.showQRScanner = true;
+      const videoInputDevices = await BrowserQRCodeReader.listVideoInputDevices();
+      const selectedDeviceId = videoInputDevices[videoInputDevices.length - 1].deviceId;
+      
+      const previewStream = await navigator.mediaDevices.getUserMedia({
+        video: { deviceId: selectedDeviceId }
+      });
+      
+      this.videoElement.nativeElement.srcObject = previewStream;
+      this.videoElement.nativeElement.play();
+
+      this.codeReader.decodeFromVideoElement(
+        this.videoElement.nativeElement,
+        (result) => {
+          if (result) {
+            const reportId = result.getText();
+            this.closeQRScanner();
+            this.reportForm.patchValue({ id: reportId });
+          }
+        }
+      );
+    } catch (error) {
+      console.error('Error accessing camera:', error);
+      this.showNotification('Error accessing camera');
+      this.closeQRScanner();
+    }
+  }
+
+  closeQRScanner() {
+    if (this.showQRScanner) {
+      this.showQRScanner = false;
+      if (this.videoElement?.nativeElement.srcObject) {
+        const stream = this.videoElement.nativeElement.srcObject as MediaStream;
+        stream.getTracks().forEach(track => track.stop());
+      }
     }
   }
 

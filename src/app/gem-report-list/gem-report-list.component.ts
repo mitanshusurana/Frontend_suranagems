@@ -183,14 +183,19 @@ export class GemReportListComponent implements OnInit, OnDestroy {
     this.applyFilters();
   }
 
-  async openQRScanner(event : Event) {
+  async openQRScanner(event: Event) {
     event.preventDefault();
+    event.stopPropagation();
+    
+    // Blur any active input to hide virtual keyboard
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+    
     try {
-const target = event.target as HTMLElement; const inputElement = target.closest('mat-form-field')?.querySelector('input'); if (inputElement) { inputElement.blur();}
       this.showScanner = true;
       const videoInputDevices = await BrowserQRCodeReader.listVideoInputDevices();
-
-const selectedDeviceId = videoInputDevices[videoInputDevices.length-1].deviceId;
+      const selectedDeviceId = videoInputDevices[videoInputDevices.length - 1].deviceId;
       
       const previewStream = await navigator.mediaDevices.getUserMedia({
         video: { deviceId: selectedDeviceId }
@@ -223,7 +228,6 @@ const selectedDeviceId = videoInputDevices[videoInputDevices.length-1].deviceId;
         const stream = this.videoElement.nativeElement.srcObject as MediaStream;
         stream.getTracks().forEach(track => track.stop());
       }
-      // this.codeReader.reset();
     }
   }
 

@@ -14,10 +14,11 @@ export class ImageUploadService {
 
   constructor(private http: HttpClient) {
     this.s3Client = new S3Client({
-      endpoint: environment.r2.endpoint,
-      region: environment.r2.region,
-      credentials: environment.r2.credentials
-    });
+  endpoint: environment.r2.endpoint,
+  region: 'auto', // Cloudflare R2 requires 'auto' region
+  credentials: environment.r2.credentials,
+  forcePathStyle: true, // Required for R2 compatibility
+});
   }
 
   uploadImage(file: File): Observable<{ url: string }> {
@@ -47,14 +48,14 @@ export class ImageUploadService {
   }
 
   private async getPresignedUrl(key: string) {
-    return createPresignedPost(this.s3Client, {
-      Bucket: environment.r2.bucketName,
-      Key: key,
-      Conditions: [
-        ['content-length-range', 0, 10485760], // up to 10MB
-        ['starts-with', '$Content-Type', 'image/']
-      ],
-      Expires: 600 // URL expires in 10 minutes
-    });
-  }
+  return createPresignedPost(this.s3Client, {
+    Bucket: environment.r2.bucketName,
+    Key: key,
+    Conditions: [
+      ['content-length-range', 0, 10485760],
+      ['starts-with', '$content-type', 'image/'] // lowercase 'content-type'
+    ],
+    Expires: 600
+  });
+}
 }

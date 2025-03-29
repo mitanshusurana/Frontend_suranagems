@@ -7,6 +7,6 @@ export const environment = {
       secretAccessKey: '84db7fe89e4de9de6b0c65b772c458efa64ec49482c48670695bfa90ec02ab12'
     },
     bucketName: 'suranagemsassets',
-    publicUrl: 'https://pub-edd8f524b4784df1b5961ce0d431f767.r2.dev'
+    publicUrl: 'https://3145274f44bbf3178e1f2469ff4fdb07.r2.cloudflarestorage.com/suranagemsassets'
   }
 };

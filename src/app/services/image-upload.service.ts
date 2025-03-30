@@ -26,7 +26,7 @@ export class ImageUploadService {
     const bucketName = "suranagemsassets";
     const publicUrl = "https://suranagemsassets.3145274f44bbf3178e1f2469ff4fdb07.r2.cloudflarestorage.com";
 
-    return from(
+    return
       this.s3Client.send(
         new PutObjectCommand({
           Bucket: bucketName,
@@ -34,11 +34,6 @@ export class ImageUploadService {
           Body: file,
           ContentType: file.type
         })
-      )
-    ).pipe(
-      map(() => ({
-        url: `${publicUrl}/${fileName}`
-      }))
-    );
+      );
   }
 }

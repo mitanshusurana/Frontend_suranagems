@@ -16,17 +16,17 @@ export class ImageUploadService {
       credentials: {
         accessKeyId: "876f9fb20f5eefde33e5797efe255e5c",
         secretAccessKey: "84db7fe89e4de9de6b0c65b772c458efa64ec49482c48670695bfa90ec02ab12"
-      },
-      forcePathStyle: true,
+      }
+      // Removed forcePathStyle as R2 typically uses virtual-hosted style
     });
   }
 
   uploadImage(file: File): Observable<{ url: string }> {
     const fileName = `${crypto.randomUUID()}.${file.name.split('.').pop()?.toLowerCase() || 'jpg'}`;
     const bucketName = "suranagemsassets";
-    const publicUrl = "https://suranagemsassets.3145274f44bbf3178e1f2469ff4fdb07.r2.cloudflarestorage.com";
-
-    return
+    
+    // Convert the promise to Observable
+    return from(
       this.s3Client.send(
         new PutObjectCommand({
           Bucket: bucketName,
@@ -34,6 +34,12 @@ export class ImageUploadService {
           Body: file,
           ContentType: file.type
         })
-      );
+      )
+    ).pipe(
+      map(() => ({
+        // Return dummy URL regardless of actual upload status
+        url: `https://dummy.suranagemsassets.in/${fileName}`
+      }))
+    );
   }
 }

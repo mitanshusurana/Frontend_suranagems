@@ -1,45 +1,81 @@
 import { Injectable } from '@angular/core';
-import { Observable, from } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable } from 'rxjs';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ImageUploadService {
   private s3Client: S3Client;
+  private publicUrl: string;
 
   constructor() {
     this.s3Client = new S3Client({
-      endpoint: "https://3145274f44bbf3178e1f2469ff4fdb07.r2.cloudflarestorage.com",
-      region: "auto",
-      credentials: {
-        accessKeyId: "876f9fb20f5eefde33e5797efe255e5c",
-        secretAccessKey: "84db7fe89e4de9de6b0c65b772c458efa64ec49482c48670695bfa90ec02ab12"
-      }
-      // Removed forcePathStyle as R2 typically uses virtual-hosted style
+      endpoint: environment.r2.endpoint,
+      region: environment.r2.region,
+      credentials: environment.r2.credentials,
+      forcePathStyle: true
     });
+    this.publicUrl = environment.r2.publicUrl;
   }
 
   uploadImage(file: File): Observable<{ url: string }> {
-    const fileName = `${crypto.randomUUID()}.${file.name.split('.').pop()?.toLowerCase() || 'jpg'}`;
-    const bucketName = "suranagemsassets";
-    
-    // Convert the promise to Observable
-    return from(
-      this.s3Client.send(
-        new PutObjectCommand({
-          Bucket: bucketName,
-          Key: fileName,
-          Body: file,
-          ContentType: file.type
-        })
-      )
-    ).pipe(
-      map(() => ({
-        // Return dummy URL regardless of actual upload status
-        url: `https://dummy.suranagemsassets.in/${fileName}`
-      }))
-    );
+    return new Observable(observer => {
+      // Validate file input
+      if (!(file instanceof File)) {
+        observer.error(new Error('Invalid file object'));
+        return;
+      }
+
+      // Create a FileReader instance
+      const reader = new FileReader();
+      const fileName = `${crypto.randomUUID()}.${file.name.split('.').pop()?.toLowerCase() || 'jpg'}`;
+
+      reader.onload = async () => {
+        try {
+          if (!reader.result) {
+            throw new Error('Failed to read file');
+          }
+
+          // Convert FileReader result to Uint8Array
+          const arrayBuffer = reader.result as ArrayBuffer;
+          const uint8Array = new Uint8Array(arrayBuffer);
+
+          // Send the upload command
+          await this.s3Client.send(
+            new PutObjectCommand({
+              Bucket: environment.r2.bucketName,
+              Key: fileName,
+              Body: uint8Array,
+              ContentType: file.type,
+              ACL: 'public-read'
+            })
+          );
+
+          // Return the public URL
+          observer.next({
+            url: `${this.publicUrl}/${fileName}`
+          });
+          observer.complete();
+        } catch (error) {
+          console.error('Error uploading to R2:', error);
+          observer.error(error);
+        }
+      };
+
+      reader.onerror = (error) => {
+        console.error('FileReader error:', error);
+        observer.error(new Error('Failed to read file'));
+      };
+
+      // Start reading the file
+      try {
+        reader.readAsArrayBuffer(file);
+      } catch (error) {
+        console.error('Error starting file read:', error);
+        observer.error(new Error('Failed to start file reading'));
+      }
+    });
   }
 }

@@ -3,8 +3,10 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import Cropper from 'cropperjs';
 import { GemReportService } from '../services/gem-report.service';
+import { ImageUploadService } from '../services/image-upload.service';
 import { GemReport } from '../models/gem-report.model';
 import { BrowserQRCodeReader } from '@zxing/browser';
+import { forkJoin, Observable } from 'rxjs';
 
 @Component({
   selector: 'app-gem-report-form',
@@ -29,6 +31,7 @@ export class GemReportFormComponent implements OnInit, OnDestroy {
   constructor(
     private fb: FormBuilder,
     private gemReportService: GemReportService,
+    private imageUploadService: ImageUploadService,
     private snackBar: MatSnackBar
   ) {
     this.codeReader = new BrowserQRCodeReader();
@@ -116,41 +119,58 @@ export class GemReportFormComponent implements OnInit, OnDestroy {
 
   async saveCroppedImage() {
     if (this.cropper) {
-      const croppedCanvas = this.cropper.getCroppedCanvas({
-        width: 800,
-        height: 800,
-      });
+      try {
+        const croppedCanvas = this.cropper.getCroppedCanvas({
+          width: 800,
+          height: 800,
+        });
 
-      const optimizedImage = await this.optimizeImage(croppedCanvas);
-      this.images.push(optimizedImage);
-      
-      this.imageQueue.shift();
-      
-      if (this.imageQueue.length === 0) {
-        this.closeImageModal();
-      } else {
-        this.processNextImage();
+        // Convert canvas to blob with explicit MIME type
+        const blob = await new Promise<Blob>((resolve, reject) => {
+          croppedCanvas.toBlob(
+            (b) => {
+              if (b) {
+                resolve(b);
+              } else {
+                reject(new Error('Failed to create blob from canvas'));
+              }
+            },
+            'image/jpeg',
+            0.8
+          );
+        });
+
+        // Create a File object from the Blob
+        const file = new File([blob], 'cropped-image.jpg', { 
+          type: 'image/jpeg',
+          lastModified: Date.now()
+        });
+
+        // Log the file object for debugging
+        console.log('File object created:', file);
+
+        this.imageUploadService.uploadImage(file).subscribe({
+          next: (response) => {
+            console.log('Upload successful:', response);
+            this.images.push(response.url);
+            this.imageQueue.shift();
+            
+            if (this.imageQueue.length === 0) {
+              this.closeImageModal();
+            } else {
+              this.processNextImage();
+            }
+          },
+          error: (error) => {
+            console.error('Error uploading image:', error);
+            this.showNotification('Failed to upload image. Please try again.');
+          }
+        });
+      } catch (error) {
+        console.error('Error processing image:', error);
+        this.showNotification('Failed to process image. Please try again.');
       }
     }
-  }
-
-  private async optimizeImage(canvas: HTMLCanvasElement): Promise<string> {
-    return new Promise((resolve, reject) => {
-      canvas.toBlob(
-        (blob) => {
-          if (blob) {
-            const reader = new FileReader();
-            reader.onloadend = () => resolve(reader.result as string);
-            reader.onerror = () => reject(new Error('Image optimization failed'));
-            reader.readAsDataURL(blob);
-          } else {
-            reject(new Error('Canvas to blob conversion failed'));
-          }
-        },
-        'image/jpeg',
-        0.8
-      );
-    });
   }
 
   closeImageModal() {
@@ -167,7 +187,6 @@ export class GemReportFormComponent implements OnInit, OnDestroy {
     event.preventDefault();
     event.stopPropagation();
     
-    // Blur any active input to hide virtual keyboard
     if (document.activeElement instanceof HTMLElement) {
       document.activeElement.blur();
     }

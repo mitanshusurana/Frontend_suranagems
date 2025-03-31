@@ -119,20 +119,39 @@ export class GemReportFormComponent implements OnInit, OnDestroy {
 
   async saveCroppedImage() {
     if (this.cropper) {
-      const croppedCanvas = this.cropper.getCroppedCanvas({
-        width: 800,
-        height: 800,
-      });
-
       try {
-        const blob = await new Promise<Blob>((resolve) => {
-          croppedCanvas.toBlob((b) => resolve(b!), 'image/jpeg', 0.8);
+        const croppedCanvas = this.cropper.getCroppedCanvas({
+          width: 800,
+          height: 800,
         });
 
-        const file = new File([blob], 'cropped-image.jpg', { type: 'image/jpeg' });
-        
+        // Convert canvas to blob with explicit MIME type
+        const blob = await new Promise<Blob>((resolve, reject) => {
+          croppedCanvas.toBlob(
+            (b) => {
+              if (b) {
+                resolve(b);
+              } else {
+                reject(new Error('Failed to create blob from canvas'));
+              }
+            },
+            'image/jpeg',
+            0.8
+          );
+        });
+
+        // Create a File object from the Blob
+        const file = new File([blob], 'cropped-image.jpg', { 
+          type: 'image/jpeg',
+          lastModified: Date.now()
+        });
+
+        // Log the file object for debugging
+        console.log('File object created:', file);
+
         this.imageUploadService.uploadImage(file).subscribe({
           next: (response) => {
+            console.log('Upload successful:', response);
             this.images.push(response.url);
             this.imageQueue.shift();
             
@@ -144,12 +163,12 @@ export class GemReportFormComponent implements OnInit, OnDestroy {
           },
           error: (error) => {
             console.error('Error uploading image:', error);
-            this.showNotification('Failed to upload image');
+            this.showNotification('Failed to upload image. Please try again.');
           }
         });
       } catch (error) {
         console.error('Error processing image:', error);
-        this.showNotification('Failed to process image');
+        this.showNotification('Failed to process image. Please try again.');
       }
     }
   }
